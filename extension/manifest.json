@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Video Info Sender",
+    "version": "1.0",
+    "description": "Sends current YouTube video info to an API",
+    "permissions": [
+        "activeTab"
+    ],
+    "host_permissions": [
+        "https://www.youtube.com/*",
+        "http://localhost/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
