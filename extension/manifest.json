@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "YouTube Video Info Sender",
-    "version": "1.0",
+    "version": "2.0",
     "description": "Sends current YouTube video info to an API",
     "permissions": [
         "activeTab"

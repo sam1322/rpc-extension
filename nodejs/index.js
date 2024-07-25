@@ -59,6 +59,7 @@ app.post("/update", (req, res) => {
     title,
     thumbnail,
     channelName,
+    channelUrl,
     url,
     isPlaying,
     smallImageKey,
@@ -74,11 +75,15 @@ app.post("/update", (req, res) => {
     smallImageKey: isPlaying ? "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882387/play4_kppcqd.png" : "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882388/pause3_ashttx.png",
     smallImageText: isPlaying ? "Playing" : "Paused",
   };
-  if (url != "" && url != null) {
+  if (url != "" && url != null && channelUrl != "" && channelUrl != null) {
     activityState.buttons = [
       {
         label: buttonLabel ?? "Watch Along",
         url: url ?? "https://discord.com",
+      },
+      {
+        label: "Follow Along",
+        url: channelUrl ?? "https://discord.com",
       },
     ];
   }
