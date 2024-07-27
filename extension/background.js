@@ -2,10 +2,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'sendToApi') {
         sendToApi(message.videoInfo);
     }
-    else if(message.type==="clearActivity"){
+    else if (message.type === "clearActivity") {
         clearActivity();
     }
+    // for changing icon
+    // else if (request.action === "toggleExtension") {
+    //     updateIcon(request.isActive);
+    // }
 });
+
+// // In your background.js
+// function updateIcon(isActive) {
+//     const path = isActive ? {
+//         "16": "icons/icon16.png",
+//         "32": "icons/icon32.png",
+//         "48": "icons/icon48.png",
+//         "128": "icons/icon128.png"
+//     } : {
+//         "16": "icons/icon16.png",
+//         "32": "icons/icon32.png",
+//         "48": "icons/icon48.png",
+//         "128": "icons/icon128.png"
+//     };
+
+//     chrome.action.setIcon({ path: path });
+// }
+
+
 
 // function sendToApi(videoInfo) {
 //   const apiUrl = 'http://localhost:3000/video-info'; // Replace with your actual API endpoint
@@ -54,3 +77,6 @@ function clearActivity() {
         .then(data => console.log('Success:', data))
         .catch((error) => console.log('Error:', error));
 }
+
+
+

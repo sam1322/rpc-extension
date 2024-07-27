@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   toggleSwitch.addEventListener('change', function () {
-    console.log("hi", this.checked, this)
     var isActive = this.checked;
     chrome.storage.sync.set({ isActive: isActive }, function () {
       updateStatus(isActive);
