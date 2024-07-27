@@ -2,6 +2,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'sendToApi') {
         sendToApi(message.videoInfo);
     }
+    else if(message.type==="clearActivity"){
+        clearActivity();
+    }
 });
 
 // function sendToApi(videoInfo) {
@@ -30,6 +33,22 @@ function sendToApi(videoInfo) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(videoInfo),
+    })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch((error) => console.log('Error:', error));
+}
+
+
+function clearActivity() {
+    const apiUrl = 'http://localhost:3003/update';
+
+    fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        // body: JSON.stringify(videoInfo),
     })
         .then(response => response.json())
         .then(data => console.log('Success:', data))

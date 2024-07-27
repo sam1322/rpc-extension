@@ -115,13 +115,13 @@ app.get("/update", (req, res) => {
     // buttonLabel,
     // buttonUrl,
   });
-  res.send("Status updated successfully");
+  res.json({ message: "Status updated successfully" });
 });
 
 // DELETE endpoint
 app.delete("/update", async (req, res) => {
   await clearStatus();
-  res.send("Status cleared successfully");
+  res.json({ message: "Status cleared successfully" });
 });
 
 // Handle exit signals
