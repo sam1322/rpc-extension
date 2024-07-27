@@ -10,6 +10,9 @@ This Chrome extension captures information about the currently playing YouTube v
 - Updates information when navigating between videos
 - Detects play/pause events
 
+![image](https://github.com/user-attachments/assets/5c30c8ad-0a22-410d-8bcc-98e09428782a)
+
+
 ## Installation
 1. Clone this repository or download the ZIP file.
 2. This project requires **Nodejs** to be preinstalled, so if it isn't installed then please install it first.
