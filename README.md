@@ -16,11 +16,16 @@ This Chrome extension captures information about the currently playing YouTube v
 3. After that navigate to nodejs directory inside the repo and install all the npm modules by running npm i in the terminal
 4. After that simply run the nodejs server by running **npm run start** in the terminal
 5. Before that you will be required to provide your discord client id in .env file
-6. If you don't know how to get a discord client id from your discord application  then please search  online.
+6. If you don't know how to get a discord client id from your discord application  then please search  online.After running your nodejs server successfully, Open Chrome and navigate to `chrome://extensions/`
 
-After running your nodejs server successfully, Open Chrome and navigate to `chrome://extensions/`
-7. Enable "Developer mode" in the top right corner.
+
+7. Enable "Developer mode" in the top right corner.![Screenshot from 2024-07-27 19-02-16](https://github.com/user-attachments/assets/eef7a559-2fc1-420f-b14d-791ce157cb5e)
+
 8. Click "Load unpacked" and select the directory containing the extension files ie the extension directory.
+9. After this your extension is installed
+    ![image](https://github.com/user-attachments/assets/908bcc07-d57e-43ac-964d-da2acffd16a2)
+
+
 
 ## Usage
 1. Navigate to any YouTube video page.
