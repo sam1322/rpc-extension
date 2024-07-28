@@ -18,12 +18,6 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
   if (changes.isActive) {
     console.log('isActive changed to', changes.isActive.newValue);
     isExtensionActive = changes.isActive.newValue;
-    if (isExtensionActive) {
-      // checkAndSendVideoState()
-    }
-    else {
-      clearState()
-    }
   }
 });
 
@@ -33,10 +27,13 @@ async function getVideoInfo() {
 
   if (currentVideoInfo == null || currentVideoInfo?.videoId != videoId) {
     const resp = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
-    data = await resp.json();
-    currentVideoInfo = data;
-    currentVideoInfo.videoId = videoId;
-    console.log("calling api")
+    if (resp.status == 200) {
+      data = await resp.json();
+      currentVideoInfo = data;
+      currentVideoInfo.videoId = videoId;
+      console.log("calling api")
+    }
+
   }
   else {
     data = currentVideoInfo;
@@ -82,11 +79,10 @@ function clearDiscordActivity() {
 }
 
 
+
 async function checkAndSendVideoState() {
   console.log("isActive", isExtensionActive)
   if (!isExtensionActive) {
-    console.log("currentVideoId2", currentVideoId)
-    clearState()
     return;
   }
 
@@ -114,7 +110,6 @@ const clearState = () => {
 let lastUrl = location.href;
 new MutationObserver(() => {
   if (!isExtensionActive) {
-    clearState()
     return;
   }
   const newUrl = location.href;

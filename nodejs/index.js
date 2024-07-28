@@ -82,7 +82,7 @@ app.post("/update", (req, res) => {
         url: url ?? "https://discord.com",
       },
       {
-        label: "Follow Along",
+        label: "Follow Channel",
         url: channelUrl ?? "https://discord.com",
       },
     ];
