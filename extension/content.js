@@ -21,6 +21,8 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
   }
 });
 
+let elapsedStartTimestamp = null;
+
 async function getVideoInfo() {
   const videoId = getVideoId();
   let data = null
@@ -49,6 +51,20 @@ async function getVideoInfo() {
     return null;
   }
 
+  let currentTimestamp = videoElement.currentTime
+  let videoDuration = videoElement.duration
+
+  let dateNow = Date.now() / 1000
+
+  // Adjust start timestamp to match current position only when playing
+  let startTimestamp = Math.floor(dateNow - currentTimestamp);
+  if (!videoElement?.paused && !elapsedStartTimestamp) {
+    elapsedStartTimestamp = startTimestamp;
+  }
+
+
+  let endTimestamp = Math.floor(dateNow - currentTimestamp + videoDuration); // Adjust end timestamp to match video duration
+
   return {
     videoId: videoId,
     title: data?.title?.trim() ?? titleElement?.textContent?.trim(),
@@ -57,6 +73,8 @@ async function getVideoInfo() {
     isPlaying: !videoElement?.paused,
     channelName: data?.author_name ?? channelElement?.textContent?.trim(),
     channelUrl: data?.author_url ?? channelElement?.href,
+    startTimestamp: videoElement?.paused ? elapsedStartTimestamp : startTimestamp,
+    endTimestamp: videoElement?.paused ? null : endTimestamp
   };
 }
 
@@ -117,6 +135,7 @@ new MutationObserver(() => {
     lastUrl = newUrl;
     const newVideoId = getVideoId();
     if (newVideoId !== currentVideoId) {
+      elapsedStartTimestamp = null;
       currentVideoId = newVideoId;
       setTimeout(checkAndSendVideoState, 3500); // 3.5-second delay
     }
