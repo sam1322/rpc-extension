@@ -1,6 +1,7 @@
 const DiscordRPC = require("discord-rpc");
 const express = require("express");
 const bodyParser = require("body-parser");
+const { validateTimeStamp, validateText } = require("./validations");
 
 require('dotenv').config();
 
@@ -66,12 +67,17 @@ app.post("/update", (req, res) => {
     smallImageText,
     buttonLabel,
     buttonUrl,
+
+    startTimestamp,
+    endTimestamp
   } = req.body;
+
+  const detailsData = title ?? details
+  const stateData = state ?? title
+  const largeImageKeyData = thumbnail ?? largeImageKey
+  const largeImageTextData = title ?? largeImageText
+
   const activityState = {
-    state: channelName ?? state,
-    details: title ?? details,
-    largeImageKey: thumbnail ?? largeImageKey,
-    largeImageText: title ?? largeImageText,
     smallImageKey: isPlaying ? "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882387/play4_kppcqd.png" : "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882388/pause3_ashttx.png",
     smallImageText: isPlaying ? "Playing" : "Paused",
   };
@@ -82,10 +88,34 @@ app.post("/update", (req, res) => {
         url: url ?? "https://discord.com",
       },
       {
-        label: "Follow Along",
+        label: "Follow Channel",
         url: channelUrl ?? "https://discord.com",
       },
     ];
+  }
+
+  if (validateTimeStamp(endTimestamp)) {
+    activityState.endTimestamp = endTimestamp;
+  }
+
+  if (validateTimeStamp(startTimestamp)) {
+    activityState.startTimestamp = startTimestamp;
+  }
+
+  if (validateText(detailsData)) {
+    activityState.details = detailsData;
+  }
+
+  if (validateText(stateData)) {
+    activityState.state = stateData
+  }
+
+  if (validateText(largeImageKeyData)) {
+    activityState.largeImageKey = largeImageKeyData;
+  }
+
+  if (validateText(largeImageTextData)) {
+    activityState.largeImageText = largeImageTextData;
   }
 
   console.log("Received POST request:", activityState);

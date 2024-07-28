@@ -2,48 +2,47 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'sendToApi') {
         sendToApi(message.videoInfo);
     }
-    else if (message.type === "clearActivity") {
-        clearActivity();
-    }
-    // for changing icon
-    // else if (request.action === "toggleExtension") {
-    //     updateIcon(request.isActive);
+    // else if (message.type === "clearActivity") {
+    //     clearActivity();
     // }
+
 });
 
-// // In your background.js
-// function updateIcon(isActive) {
-//     const path = isActive ? {
-//         "16": "icons/icon16.png",
-//         "32": "icons/icon32.png",
-//         "48": "icons/icon48.png",
-//         "128": "icons/icon128.png"
-//     } : {
-//         "16": "icons/icon16.png",
-//         "32": "icons/icon32.png",
-//         "48": "icons/icon48.png",
-//         "128": "icons/icon128.png"
-//     };
+// In your background.js
+function updateIcon(isActive) {
+    const path = isActive ? {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    } : {
+        "16": "icons_disabled/icon16.png",
+        "32": "icons_disabled/icon32.png",
+        "48": "icons_disabled/icon48.png",
+        "128": "icons_disabled/icon128.png"
+    };
 
-//     chrome.action.setIcon({ path: path });
-// }
+    chrome.action.setIcon({ path: path });
+    if (!isActive) {
+        clearActivity();
+    }
+}
 
 
 
-// function sendToApi(videoInfo) {
-//   const apiUrl = 'http://localhost:3000/video-info'; // Replace with your actual API endpoint
+// Initialize the icon state when the extension is installed or updated
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.storage.sync.get('isActive', (data) => {
+        updateIcon(data.isActive);
+    });
+});
 
-//   fetch(apiUrl, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(videoInfo),
-//   })
-//   .then(response => response.json())
-//   .then(data => console.log('Success:', data))
-//   .catch((error) => console.error('Error:', error));
-// }
+// Listen for messages to update the icon
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "toggleExtension") {
+        updateIcon(request.isActive);
+    }
+});
 
 function sendToApi(videoInfo) {
     // Replace with your actual API endpoint

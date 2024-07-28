@@ -18,14 +18,10 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
   if (changes.isActive) {
     console.log('isActive changed to', changes.isActive.newValue);
     isExtensionActive = changes.isActive.newValue;
-    if (isExtensionActive) {
-      // checkAndSendVideoState()
-    }
-    else {
-      clearState()
-    }
   }
 });
+
+let elapsedStartTimestamp = null;
 
 async function getVideoInfo() {
   const videoId = getVideoId();
@@ -33,10 +29,13 @@ async function getVideoInfo() {
 
   if (currentVideoInfo == null || currentVideoInfo?.videoId != videoId) {
     const resp = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
-    data = await resp.json();
-    currentVideoInfo = data;
-    currentVideoInfo.videoId = videoId;
-    console.log("calling api")
+    if (resp.status == 200) {
+      data = await resp.json();
+      currentVideoInfo = data;
+      currentVideoInfo.videoId = videoId;
+      console.log("calling api")
+    }
+
   }
   else {
     data = currentVideoInfo;
@@ -52,6 +51,20 @@ async function getVideoInfo() {
     return null;
   }
 
+  let currentTimestamp = videoElement.currentTime
+  let videoDuration = videoElement.duration
+
+  let dateNow = Date.now() / 1000
+
+  // Adjust start timestamp to match current position only when playing
+  let startTimestamp = Math.floor(dateNow - currentTimestamp);
+  if (!videoElement?.paused && !elapsedStartTimestamp) {
+    elapsedStartTimestamp = startTimestamp;
+  }
+
+
+  let endTimestamp = Math.floor(dateNow - currentTimestamp + videoDuration); // Adjust end timestamp to match video duration
+
   return {
     videoId: videoId,
     title: data?.title?.trim() ?? titleElement?.textContent?.trim(),
@@ -60,6 +73,8 @@ async function getVideoInfo() {
     isPlaying: !videoElement?.paused,
     channelName: data?.author_name ?? channelElement?.textContent?.trim(),
     channelUrl: data?.author_url ?? channelElement?.href,
+    startTimestamp: videoElement?.paused ? elapsedStartTimestamp : startTimestamp,
+    endTimestamp: videoElement?.paused ? null : endTimestamp
   };
 }
 
@@ -82,11 +97,10 @@ function clearDiscordActivity() {
 }
 
 
+
 async function checkAndSendVideoState() {
   console.log("isActive", isExtensionActive)
   if (!isExtensionActive) {
-    console.log("currentVideoId2", currentVideoId)
-    clearState()
     return;
   }
 
@@ -114,7 +128,6 @@ const clearState = () => {
 let lastUrl = location.href;
 new MutationObserver(() => {
   if (!isExtensionActive) {
-    clearState()
     return;
   }
   const newUrl = location.href;
@@ -122,6 +135,7 @@ new MutationObserver(() => {
     lastUrl = newUrl;
     const newVideoId = getVideoId();
     if (newVideoId !== currentVideoId) {
+      elapsedStartTimestamp = null;
       currentVideoId = newVideoId;
       setTimeout(checkAndSendVideoState, 3500); // 3.5-second delay
     }
