@@ -73,7 +73,7 @@ app.post("/update", (req, res) => {
   } = req.body;
 
   const detailsData = title ?? details
-  const stateData = state ?? title
+  const stateData = state ?? channelName
   const largeImageKeyData = thumbnail ?? largeImageKey
   const largeImageTextData = title ?? largeImageText
 
