@@ -9,165 +9,135 @@ const app = express();
 app.use(bodyParser.json());
 
 const clientId = process.env.DISCORD_CLIENT_ID; // Replace with your actual client ID
+const postgresHost = process.env.POSTGRES_HOST
+const postgresDatabase = process.env.POSTGRES_DB
+const postgresPassword = process.env.POSTGRES_PASSWORD
+const postgresUser = process.env.POSTGRES_USER
+
 const rpc = new DiscordRPC.Client({ transport: "ipc" });
 
-// Function to update Rich Presence
-function updatePresence(activityState) {
-  rpc.setActivity(activityState);
-}
+const pg = require('pg'); // Replace with your chosen library
+const { updatePresence } = require("./DiscordActivity/update-discord");
+const { handleExit, clearStatus } = require("./DiscordActivity/clearStatus");
+const { updateDiscordActivity } = require("./DiscordActivity/update-discord");
+const { checkConnection } = require("./DiscordActivity/findVideoId");
+const { default: axios } = require("axios");
 
-// Function to handle graceful shutdown
-async function handleExit() {
-  console.log("Clearing Rich Presence and shutting down...");
-  try {
-    await rpc.clearActivity();
-    console.log("Rich Presence cleared");
-    rpc.destroy();
-    console.log("RPC connection closed");
-    process.exit(0);
-  } catch (error) {
-    console.error("Error during shutdown:", error);
-    process.exit(1);
-  }
-}
+// const pool = new pg.Pool({
+//   user: postgresUser,
+//   host: postgresHost,
+//   database: postgresDatabase,
+//   password: postgresPassword,
+//   port: 5432,
+// });
 
-async function clearStatus() {
-  console.log("Clearing Rich Presence and shutting down...");
-  try {
-    await rpc.clearActivity();
-    console.log("Rich Presence cleared");
-  } catch (error) {
-    console.error("Error during clearing status:", error);
-  }
-}
+// Usage:
+// checkConnection(pool)
+// .then(isConnected => {
+//   if (isConnected) {
+//     // Perform database operations
+//   } else {
+//     // Handle connection failure
+//   }
+// });
+
+let timeout = null;
 
 rpc.on("ready", () => {
   console.log("RPC is running");
-
-  // // Set initial presence
 });
 
 rpc.login({ clientId }).catch(console.error);
 
 // POST endpoint
-app.post("/update", (req, res) => {
-  const {
-    state,
-    details,
-    largeImageKey,
-    largeImageText,
+app.post("/update", (req, res) => updateDiscordActivity(req, res, rpc));
 
-    title,
-    thumbnail,
-    channelName,
-    channelUrl,
-    url,
-    isPlaying,
-    smallImageKey,
-    smallImageText,
-    buttonLabel,
-    buttonUrl,
-
-    startTimestamp,
-    endTimestamp
-  } = req.body;
-
-  const detailsData = title ?? details
-  const stateData = state ?? channelName
-  const largeImageKeyData = thumbnail ?? largeImageKey
-  const largeImageTextData = title ?? largeImageText
-
-  const activityState = {
-    smallImageKey: isPlaying ? "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882387/play4_kppcqd.png" : "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882388/pause3_ashttx.png",
-    smallImageText: isPlaying ? "Playing" : "Paused",
-  };
-  if (url != "" && url != null && channelUrl != "" && channelUrl != null) {
-    activityState.buttons = [
-      {
-        label: buttonLabel ?? "Watch Along",
-        url: url ?? "https://discord.com",
-      },
-      {
-        label: "Follow Channel",
-        url: channelUrl ?? "https://discord.com",
-      },
-    ];
-  }
-
-  if (validateTimeStamp(endTimestamp)) {
-    activityState.endTimestamp = endTimestamp;
-  }
-
-  if (validateTimeStamp(startTimestamp)) {
-    activityState.startTimestamp = startTimestamp;
-  }
-
-  if (validateText(detailsData)) {
-    activityState.details = detailsData;
-  }
-
-  if (validateText(stateData)) {
-    activityState.state = stateData
-  }
-
-  if (validateText(largeImageKeyData)) {
-    activityState.largeImageKey = largeImageKeyData;
-  }
-
-  if (validateText(largeImageTextData)) {
-    activityState.largeImageText = largeImageTextData;
-  }
-
-  console.log("Received POST request:", activityState);
-  updatePresence(activityState);
-  res.json({ message: "Status updated successfully" });
-});
-
-// GET endpoint
-app.get("/update", (req, res) => {
-  const {
-    state,
-    details,
-    largeImageKey,
-    largeImageText,
-    smallImageKey,
-    smallImageText,
-    buttonLabel,
-    buttonUrl,
-  } = req.query;
-  updatePresence({
-    state,
-    details,
-    largeImageKey,
-    largeImageText,
-    // smallImageKey,
-    // smallImageText,
-    // buttonLabel,
-    // buttonUrl,
-  });
-  res.json({ message: "Status updated successfully" });
-});
 
 // DELETE endpoint
 app.delete("/update", async (req, res) => {
-  await clearStatus();
+  await clearStatus(rpc);
   res.json({ message: "Status cleared successfully" });
 });
 
+
+// POST endpoint
+app.post("/updateApk", async (req, res) => {
+  // await clearStatus();
+  // console.log("hello calling update  apk", req.body)
+  const { title: videoTitle, message: channelName, timestamp, actions } = req.body
+
+  const isPlaying = actions.includes("Pause")
+
+
+  if (timeout) clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    await setDiscordActivity(videoTitle, channelName, isPlaying);
+  }, 1000); // Adjust the delay as necessary
+
+
+  res.json({ message: "post api called successfully" });
+});
+
+
+const setDiscordActivity = async (title, artist, isPlaying) => {
+  console.log("title: ", title, "channelName:", artist)
+
+  const resp = await axios.post("http://localhost:8080/youtube", {
+    title: title,
+    channelName: artist,
+  });
+  if (resp.status === 200) {
+    console.log("DiscordActivity updated")
+    const data = resp.data
+    console.log()
+    const videoId = data?.videoId
+    const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+    const activityState = {
+      smallImageKey: isPlaying ? "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882387/play4_kppcqd.png" : "https://res.cloudinary.com/dw5xqmxyu/image/upload/v1721882388/pause3_ashttx.png",
+      smallImageText: isPlaying ? "Playing" : "Paused",
+      largeImageKey: thumbnail,
+      largeImageText: "Playing on Android",
+    };
+
+    if (validateText(data?.title)) {
+      activityState.details = data?.title;
+    }
+
+    if (validateText(data?.channelName)) {
+      activityState.state = data?.channelName;
+    }
+
+
+    console.log("Received POST request:", activityState);
+    updatePresence(rpc, activityState);
+  }
+
+}
+
+
+// DELETE endpoint
+app.get("/updateApk", async (req, res) => {
+  // await clearStatus();
+  console.log("get api")
+  res.json({ message: "get api called successfully" });
+});
+
+
 // Handle exit signals
-process.on("SIGINT", handleExit);
-process.on("SIGTERM", handleExit);
+process.on("SIGINT", () => handleExit(rpc));
+process.on("SIGTERM", () => handleExit(rpc));
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception:", error);
-  handleExit();
+  handleExit(rpc);
 });
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  handleExit();
+  handleExit(rpc);
 });
 
 // Start the server
@@ -179,5 +149,5 @@ const server = app.listen(port, () => {
 // Handle server close
 server.on("close", () => {
   console.log("Express server closed");
-  handleExit();
+  handleExit(rpc);
 });

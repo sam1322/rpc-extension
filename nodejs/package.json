@@ -10,9 +10,12 @@
   "author": "Saminem",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.2",
     "body-parser": "^1.20.2",
+    "cheerio": "^1.0.0-rc.12",
     "discord-rpc": "^4.0.1",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
   }
 }
