@@ -3,6 +3,7 @@ package scraperrod
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-rod/rod/lib/launcher"
 	"log"
 	"net/http"
 	"regexp"
@@ -13,7 +14,6 @@ import (
 	"youtube-scrapper/util"
 
 	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/launcher"
 )
 
 type ScrapperRod struct {
@@ -25,17 +25,7 @@ type VideoRequest struct {
 	ChannelName string `json:"channelName"`
 }
 
-// type Video struct {
-// 	Title       string `json:"title"`
-// 	ChannelName string `json:"channelName"`
-// 	VideoUrl    string `json:"videoUrl"`
-// 	ChannelUrl  string `json:"channelUrl"`
-// 	Description string `json:"description"`
-// 	VideoId     string `json:"videoId"`
-// 	// PublishedAt string `json:"publishedAt"`
-// 	// ViewCount   string `json:"viewCount"`
-// }
-
+// Video alias for database.Video
 type Video = database.Video
 
 var (
@@ -51,36 +41,37 @@ func NewScrapper(db *database.Database) *ScrapperRod {
 // ScrapeAndStoreVideo checks if a video exists in the database, scrapes if not, and stores it.
 func (s *ScrapperRod) ScrapeAndStoreVideo(title, channelName string) (*Video, error) {
 	// Check if the video already exists in the database
-	video, err := s.db.GetVideoByTitleAndChannel(title, channelName)
-	if err != nil {
-		// Video found in the database
-		// fmt.Printf("Video already exists: %+v\n", video)
-		// return nil, fmt.Errorf("something went wrong %+v\n ", err)
-		log.Println(err.Error())
+	//video, err := s.db.GetVideoByTitleAndChannel(title, channelName)
+	//if err != nil {
+	//	// Video found in the database
+	//	// fmt.Printf("Video already exists: %+v\n", video)
+	//	// return nil, fmt.Errorf("something went wrong %+v\n ", err)
+	//	log.Println(err.Error())
+	//}
+	var video *Video
+	var err error
+	if video == nil {
+		log.Printf("Video does not exists in DB")
+		video, err = GetSingleVideo(title, channelName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scrape video: %v", err)
+		}
+
+		// Store the video in the database
+		existingVideo, _ := s.db.GetVideoById(video.VideoId)
+		if existingVideo == nil {
+			err = s.db.AddVideo(video)
+			if err != nil {
+				return nil, fmt.Errorf("failed to store video: %v", err)
+			}
+			log.Printf("Video stored in DB : " + video.VideoId)
+		} else {
+			video = existingVideo
+			log.Printf("Existing Video stored in DB : " + video.VideoId)
+
+		}
+
 	}
-
-	// if video == nil {
-	// 	log.Printf("Video does not exists in DB")
-	// 	video, err = GetSingleVideo(title, channelName)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("failed to scrape video: %v", err)
-	// 	}
-
-	// 	// Store the video in the database
-	// 	existingVideo, _ := s.db.GetVideoById(video.VideoId)
-	// 	if existingVideo == nil {
-	// 		err = s.db.AddVideo(video)
-	// 		if err != nil {
-	// 			return nil, fmt.Errorf("failed to store video: %v", err)
-	// 		}
-	// 		log.Printf("Video stored in DB : " + video.VideoId)
-	// 	} else {
-	// 		video = existingVideo
-	// 		log.Printf("Existing Video stored in DB : " + video.VideoId)
-
-	// 	}
-
-	// }
 
 	return video, nil
 }
@@ -124,11 +115,23 @@ func YoutubeScrapper(s *ScrapperRod) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
 }
 
 func init() {
-	u := launcher.NewUserMode().Headless(false).MustLaunch()
+	//u := launcher.NewUserMode().Headless(false).MustLaunch()
+	//
+	//browser = rod.New().ControlURL(u).MustConnect()
+
+	path, _ := launcher.LookPath()
+	u := launcher.New().
+		Bin(path).
+		Set("no-sandbox").
+		Set("headless").
+		Set("disable-gpu").
+		Set("disable-dev-shm-usage").
+		MustLaunch()
 
 	browser = rod.New().ControlURL(u).MustConnect()
 
@@ -253,6 +256,9 @@ func findVideoItem(title, channelName string, arr []Video) *Video {
 				break
 			}
 		}
+	}
+	if videoItem == nil && len(arr) > 0 {
+		videoItem = &arr[0]
 	}
 
 	return videoItem

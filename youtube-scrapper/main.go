@@ -46,6 +46,7 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	s := scraperrod.NewScrapper(db)
+	//defer s.CloseBrowserContext()
 
 	r.Get("/", Welcomefunc)
 
@@ -55,11 +56,6 @@ func main() {
 
 	http.ListenAndServe(":8080", r)
 }
-
-// type VideoRequest struct {
-// 	Title       string `json:"title"`
-// 	ChannelName string `json:"channelName"`
-// }
 
 func Welcomefunc(w http.ResponseWriter, r *http.Request) {
 
@@ -78,41 +74,4 @@ func Welcomefunc(w http.ResponseWriter, r *http.Request) {
 Hello from Docker!
 
 `)
-	// w.Write([]byte("welcome"))
 }
-
-// func YoutubeScrapper(w http.ResponseWriter, r *http.Request) {
-// 	var request VideoRequest
-// 	err := json.NewDecoder(r.Body).Decode(&request)
-// 	if err != nil {
-// 		// Handle error
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Access user attributes
-// 	title := request.Title
-// 	channelName := request.ChannelName
-// 	video, err := scraperrod.GetSingleVideo(title, channelName)
-// 	// videos, err := scraperrod.GetVideoInfo(title, channelName)
-// 	// videos, err := scrapper.GetVideoInfo(title, channelName)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 	}
-
-// 	// Set content type to JSON
-// 	w.Header().Set("Content-Type", "application/json")
-
-// 	// Encode the user struct as JSON
-// 	// err = json.NewEncoder(w).Encode(struct {
-// 	// 	Message string `json:"message"`
-// 	// }{Message: "Data successfully received"})
-// 	err = json.NewEncoder(w).Encode(video)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// w.WriteHeader(http.StatusCreated)
-// 	// w.Write([]byte("User created"))
-// }
