@@ -1,7 +1,7 @@
 const DiscordRPC = require("discord-rpc");
 const express = require("express");
 const bodyParser = require("body-parser");
-const { validateTimeStamp, validateText } = require("./validations");
+const { validateText } = require("./validations");
 
 require('dotenv').config();
 
@@ -20,7 +20,7 @@ const pg = require('pg'); // Replace with your chosen library
 const { updatePresence } = require("./DiscordActivity/update-discord");
 const { handleExit, clearStatus } = require("./DiscordActivity/clearStatus");
 const { updateDiscordActivity } = require("./DiscordActivity/update-discord");
-const { checkConnection } = require("./DiscordActivity/findVideoId");
+// const { checkConnection } = require("./DiscordActivity/findVideoId");
 const { default: axios } = require("axios");
 
 // const pool = new pg.Pool({
