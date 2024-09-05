@@ -1,153 +1,155 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    <title>YouTube Video Info Sender</title>
+    <title>YouTube Video Details Extension</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        width: 300px;
+        padding: 20px;
+        margin: 0;
+      }
+      h1 {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #ff0000;
+      }
+      .container {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #2a2a2a;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      #status {
+        font-size: 14px;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+
+        width: 40px;
+        height: 20px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        height: 16px;
+        width: 16px;
+
+        left: 4px;
+        bottom: 4px;
+        left: 4px;
+        bottom: 2px;
+
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #ff0000;
+      }
+      input:checked + .slider:before {
+        /* transform: translateX(26px); */
+        transform: translateX(16px);
+      }
+      .container-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 10px 20px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-right: 20px;
+      }
+      /* #ytIcon {
+        opacity: 0.5;
+      } */
+    </style>
   </head>
   <body>
-    <h1>YouTube Video Info Sender</h1>
-    <p>This extension sends information about the current YouTube video to an API.</p>
+    <h1>YouTube Video Details</h1>
+    <div class="container-box">
+      <div class="container">
+        <span id="status">Extension is inactive</span>
+        <label class="switch">
+          <input type="checkbox" id="activationToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div>
+            <img
+              src="./logo/youtube-icon.png"
+              alt="Youtube Music"
+              width="40"
+              height="30"
+              title="Youtube Music"
+              id="ytIcon"
+            />
+          </div>
+          <div id="youtube-status">Youtube is inactive</div>
+        </div>
+
+        <label class="switch">
+          <input type="checkbox" id="activateYtToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div>
+            <img
+              src="./logo/youtube-music-icon.png"
+              alt="Youtube Music"
+              width="30"
+              height="30"
+              title="Youtube Music"
+              id="ytMusicIcon"
+            />
+          </div>
+          <div id="youtube-music-status">Youtube Music is inactive</div>
+        </div>
+
+        <label class="switch">
+          <input type="checkbox" id="activateYtMusicToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <div>Last Played Activity</div>
     <script src="popup.js"></script>
   </body>
-</html> -->
-<!-- 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>YouTube Video Details Extension</title>
-  <style>
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #2196F3;
-    }
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-  </style>
-</head>
-<body>
-  <h1>YouTube Video Details Extension</h1>
-  <label class="switch">
-    <input type="checkbox" id="activationToggle">
-    <span class="slider"></span>
-  </label>
-  <span id="status">Extension is inactive</span>
-  <script src="popup.js"></script>
-</body>
-</html> -->
-
-<!DOCTYPE html>
-<html>
-<head>
-  <title>YouTube Video Details Extension</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #1a1a1a;
-      color: #ffffff;
-      width: 300px;
-      padding: 20px;
-      margin: 0;
-    }
-    h1 {
-      font-size: 18px;
-      text-align: center;
-      margin-bottom: 20px;
-      color: #ff0000;
-    }
-    .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #2a2a2a;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    #status {
-      font-size: 14px;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #ff0000;
-    }
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-  </style>
-</head>
-<body>
-  <h1>YouTube Video Details</h1>
-  <div class="container">
-    <span id="status">Extension is inactive</span>
-    <label class="switch">
-      <input type="checkbox" id="activationToggle">
-      <span class="slider"></span>
-    </label>
-  </div>
-  <script src="popup.js"></script>
-</body>
 </html>

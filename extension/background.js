@@ -30,6 +30,7 @@ function updateIcon(isActive) {
 
 
 
+
 // Initialize the icon state when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.sync.get('isActive', (data) => {
@@ -41,6 +42,11 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "toggleExtension") {
         updateIcon(request.isActive);
+    }
+    else if (request.action === "toggleYtActivity") {
+        if (!request.isActive) {
+            clearActivity();
+        }
     }
 });
 
